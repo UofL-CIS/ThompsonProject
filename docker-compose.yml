@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  webapi:
+    image: ${DOCKER_REGISTRY-}thompsonprojectwebapi
+    build:
+      context: .
+      dockerfile: ThompsonProject.WebApi/Dockerfile

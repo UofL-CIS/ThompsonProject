@@ -7,7 +7,7 @@ internal static class HealthCheckExtensions
     public static IServiceCollection AddCustomHealthChecks(this IServiceCollection services)
     {
         services.AddHealthChecks()
-            .AddCheck("Alive", () => HealthCheckResult.Healthy());
+            .AddCheck("Liveliness", () => HealthCheckResult.Healthy());
 
         return services;
     }

@@ -7,9 +7,9 @@ internal static class MappingExtensions
 
         webApp.MapGet("/", () =>
         {
-            return Results.Ok();
+            return Results.Ok("Hello World");
         })
-        .WithName("I'm alive");
+        .WithName("Get");
 
         return webApp;
     }
