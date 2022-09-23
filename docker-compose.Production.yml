@@ -10,7 +10,7 @@ services:
     depends_on:
       - proxy
     ports:
-      - '80'
+      - '8081:80'
 
   metrics:
     image: datalust/seq:latest
@@ -22,7 +22,7 @@ services:
     depends_on:
       - proxy
     ports:
-      - '80'
+      - '8083:80'
 
   db:
     image: mariadb:latest
@@ -45,7 +45,7 @@ services:
       - db
       - proxy
     ports:
-      - '8080'
+      - '8082:8080'
 
   wordpress:
     image: wordpress:latest
@@ -61,15 +61,15 @@ services:
       - db
       - proxy
     ports:
-      - '60577:80'
+      - '8080:80'
 
   proxy:
     image: jc21/nginx-proxy-manager:latest
     restart: unless-stopped
     ports:
-      - '60080:80'
-      - '60081:81'
-      - '60443:443'
+      - '80:80'
+      - '81:81'
+      - '443:443'
     volumes:
       - proxydata:/data
       - proxyssl:/etc/letsencrypt
