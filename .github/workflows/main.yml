@@ -1,0 +1,50 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2.1.0
+        
+    - name: Restore dependencies
+      run: dotnet restore uofl-cis420-team4.sln
+      
+    - name: Build
+      run: dotnet build --no-restore uofl-cis420-team4.sln
+      
+    - name: Test
+      run: dotnet test --no-build --verbosity normal uofl-cis420-team4.sln
+
+  publish:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+
+    steps:    
+    - uses: actions/checkout@v3
+    
+    - name: Azure Container Registry Login
+      uses: Azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+      
+    - name: 'Build and push image'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    
+    - run: |
+        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/thompsonprojectwebapi:${{ github.sha }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/thompsonprojectwebapi:latest
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/thompsonprojectwebapi:${{ github.sha }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/thompsonprojectwebapi:latest
