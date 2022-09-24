@@ -18,5 +18,4 @@ RUN dotnet publish "ThompsonProject.WebApi.csproj" -c Release -o /app/publish /p
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-HEALTHCHECK --interval=5s --timeout=30s --retries=4 CMD curl --fail http://localhost:80/hc || exit 1
 ENTRYPOINT ["dotnet", "ThompsonProject.WebApi.dll"]
