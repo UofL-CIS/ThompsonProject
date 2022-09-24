@@ -1,0 +1,49 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest    
+      
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2.1.0
+        
+    - name: Restore dependencies
+      run: dotnet restore uofl-cis420-team4.sln
+      
+    - name: Build
+      run: dotnet build --no-restore uofl-cis420-team4.sln
+      
+    - name: Test
+      run: dotnet test --no-build --verbosity normal uofl-cis420-team4.sln
+
+  publish:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: ${{ secrets.REGISTRY_LOGIN_SERVER }}/thompsonprojectwebapi
+
+    steps:    
+    - uses: actions/checkout@v3
+      
+    - name: 'Login to Docker Registry'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}   
+        
+    - name: Docker Setup Buildx
+      uses: docker/setup-buildx-action@v1.6.0
+        
+    - name: Build & Tag the Docker image
+      env:
+        GITHUB_SHA: ${{ github.sha }}
+      run: docker buildx build --platform linux/arm64,linux/amd64 --file "ThompsonProject.WebApi/Dockerfile" --force-rm --tag $IMAGE_NAME:latest --tag $IMAGE_NAME:"$GITHUB_SHA" --push .
