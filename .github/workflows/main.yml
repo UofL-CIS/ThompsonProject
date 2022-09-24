@@ -38,5 +38,6 @@ jobs:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}    
     - run: |
-        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/thompsonprojectwebapi:${{ github.sha }}
+        docker build --file ThompsonProject.WebApi/Dockerfile -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/thompsonprojectwebapi:${{ github.sha }} -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/thompsonprojectwebapi:latest
         docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/thompsonprojectwebapi:${{ github.sha }}
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/thompsonprojectwebapi:latest
