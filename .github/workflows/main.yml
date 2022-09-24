@@ -43,7 +43,7 @@ jobs:
     - name: 'Build and push image'
       env:
         GITHUB_SHA: ${{ github.sha }}
-    - run: |-
+      run: |-
         docker build --file ThompsonProject.WebApi/Dockerfile --tag $IMAGE_NAME:latest --tag $IMAGE_NAME:$GITHUB_SHA .
         docker push $IMAGE_NAME:latest
         docker push $IMAGE_NAME:"$GITHUB_SHA"
