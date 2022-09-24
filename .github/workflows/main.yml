@@ -43,7 +43,7 @@ jobs:
     - name: Build & Tag the Docker image
       env:
         GITHUB_SHA: ${{ github.sha }}
-      run: docker build --file ThompsonProject.WebApi/Dockerfile --tag $IMAGE_NAME:latest --tag $IMAGE_NAME:"$GITHUB_SHA" .
+      run: docker buildx build --platform linux/arm64,linux/amd64 --file "ThompsonProject.WebApi/Dockerfile" --force-rm --tag $IMAGE_NAME:latest --tag $IMAGE_NAME:"$GITHUB_SHA" .
         
     - name: Push to Container Registry
       env:
