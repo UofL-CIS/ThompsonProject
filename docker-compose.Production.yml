@@ -2,15 +2,12 @@ version: '3.4'
 
 services:
   webapi:
-    image: ${DOCKER_REGISTRY-}thompsonprojectwebapi
+    image: thompsonprojectcr.azurecr.io/thompsonprojectwebapi:latest
     restart: always
-    build:
-      context: .
-      dockerfile: ThompsonProject.WebApi/Dockerfile
     depends_on:
       - proxy
     ports:
-      - '8081:80'
+      - '9081:80'
 
   metrics:
     image: datalust/seq:latest
@@ -22,7 +19,7 @@ services:
     depends_on:
       - proxy
     ports:
-      - '8083:80'
+      - '9082:80'
 
   db:
     image: mariadb:latest
@@ -31,10 +28,10 @@ services:
       - dbdata:/var/lib/mysql
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=somewordpress
-      - MYSQL_DATABASE=wordpress
-      - MYSQL_USER=wordpress
-      - MYSQL_PASSWORD=wordpress
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD
 
   adminer:
     image: adminer:latest
@@ -45,7 +42,7 @@ services:
       - db
       - proxy
     ports:
-      - '8082:8080'
+      - '9083:8080'
 
   wordpress:
     image: wordpress:latest
@@ -53,23 +50,23 @@ services:
       - wpdata:/var/www/html
     restart: always
     environment:
-      - WORDPRESS_DB_HOST=db
-      - WORDPRESS_DB_USER=wordpress
-      - WORDPRESS_DB_PASSWORD=wordpress
-      - WORDPRESS_DB_NAME=wordpress
+      - WORDPRESS_DB_HOST
+      - WORDPRESS_DB_USER
+      - WORDPRESS_DB_PASSWORD
+      - WORDPRESS_DB_NAME
     depends_on:
       - db
       - proxy
     ports:
-      - '8080:80'
+      - '9080:80'
 
   proxy:
     image: jc21/nginx-proxy-manager:latest
     restart: unless-stopped
     ports:
-      - '80:80'
-      - '81:81'
-      - '443:443'
+      - '9000:80'
+      - '9001:81'
+      - '9002:443'
     volumes:
       - proxydata:/data
       - proxyssl:/etc/letsencrypt
