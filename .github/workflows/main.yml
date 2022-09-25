@@ -55,7 +55,5 @@ jobs:
     steps:
     
     - name: Call Stack Webhook
-      env:
-        STACK_WEBHOOK: ${{ secrets.STACK_WEBHOOK }}
-      run: curl -k --location --request POST '$STACK_WEBHOOK'
+      run: curl -k --location --request POST ${{ secrets.STACK_WEBHOOK }}
     
