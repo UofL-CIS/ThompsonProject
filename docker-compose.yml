@@ -7,6 +7,10 @@ services:
     build:
       context: .
       dockerfile: ThompsonProject.WebApi/Dockerfile
+    environment:
+      - AppSettings__LoggingUri=http://seq
+      - AppSettings__LoggingKey
+      - ConnectionStrings__Thompson
     depends_on:
       - proxy
     ports:

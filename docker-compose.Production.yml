@@ -4,10 +4,14 @@ services:
   webapi:
     image: thompsonprojectcr.azurecr.io/thompsonprojectwebapi:latest
     restart: always
+    environment:
+      - AppSettings__LoggingUri
+      - AppSettings__LoggingKey
+      - ConnectionStrings__Thompson
     depends_on:
       - proxy
     ports:
-      - '9081:80'
+      - '8081:80'
 
   metrics:
     image: datalust/seq:latest
@@ -19,10 +23,11 @@ services:
     depends_on:
       - proxy
     ports:
-      - '9082:80'
+      - '8082:80'
 
   db:
     image: mariadb:latest
+    #entrypoint: mysqld_safe --skip-grant-tables --user=mysql # Maintenance mode only
     command: '--default-authentication-plugin=mysql_native_password'
     volumes:
       - dbdata:/var/lib/mysql
@@ -42,7 +47,7 @@ services:
       - db
       - proxy
     ports:
-      - '9083:8080'
+      - '8083:8080'
 
   wordpress:
     image: wordpress:latest
@@ -58,15 +63,15 @@ services:
       - db
       - proxy
     ports:
-      - '9080:80'
+      - '8080:80'
 
   proxy:
     image: jc21/nginx-proxy-manager:latest
     restart: unless-stopped
     ports:
-      - '9000:80'
-      - '9001:81'
-      - '9002:443'
+      - '80:80'
+      - '81:81'
+      - '443:443'
     volumes:
       - proxydata:/data
       - proxyssl:/etc/letsencrypt
