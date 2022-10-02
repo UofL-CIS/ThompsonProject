@@ -1,19 +1,19 @@
-﻿using ThompsonProject.WebApi.DbContexts;
-using ThompsonProject.WebApi.Models.Dtos;
+﻿using ThompsonProject.WebApi.Models.Dtos;
+using ThompsonProject.WebApi.Repos.Abstractions;
 
 namespace ThompsonProject.WebApi.Services;
 
 internal class VolunteerService : IVolunteerService
 {
-    private readonly ThompsonContext _ctx;
+    private readonly IVolunteerRepo _repo;
 
-    public VolunteerService(ThompsonContext ctx)
+    public VolunteerService(IVolunteerRepo ctx)
     {
-        _ctx = ctx;
+        _repo = ctx;
     }
 
-    public Task<VolunteerDto[]> ListVolunteersAsync()
+    public async Task<VolunteerDto[]> ListVolunteersAsync()
     {
-        return Task.FromResult(_ctx.Volunteers.ToArray());
+        return (await _repo.ReadAllVolunteersAsync()).ToArray();
     }
 }

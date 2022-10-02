@@ -1,10 +1,9 @@
-using Microsoft.EntityFrameworkCore;
-
 using Serilog;
 
-using ThompsonProject.WebApi.DbContexts;
 using ThompsonProject.WebApi.Extensions;
 using ThompsonProject.WebApi.Models;
+using ThompsonProject.WebApi.Repos.Abstractions;
+using ThompsonProject.WebApi.Repos.Concretions;
 using ThompsonProject.WebApi.Services;
 
 var config = new ConfigurationBuilder()
@@ -33,7 +32,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCustomHealthChecks();
 
-builder.Services.AddDbContext<ThompsonContext>(_ => new ThompsonContext(config));
+builder.Services.AddSingleton<IVolunteerRepo>(_ => new VolunteerDal(config));
 
 builder.Services.AddTransient<IVolunteerService, VolunteerService>();
 
@@ -52,19 +51,6 @@ try
     app.UseEventMappings();
 
     app.UseHealthChecks("/hc");
-
-    using (var scope = app.Services.CreateScope())
-    using (var ctx = scope.ServiceProvider.GetRequiredService<ThompsonContext>())
-    {
-        try
-        {
-            ctx.Database.Migrate();
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Failed to migrate database!");
-        }
-    }
 
     Log.Information("Application started!");
     app.Run();
