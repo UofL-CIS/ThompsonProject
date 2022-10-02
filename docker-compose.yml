@@ -10,7 +10,7 @@ services:
     environment:
       - AppSettings__LoggingUri=http://seq
       - AppSettings__LoggingKey
-      - ConnectionStrings__Thompson
+      - ConnectionStrings__Thompson=Server=db;Database=test;Uid=test;Pwd=test;
     depends_on:
       - proxy
     ports:
@@ -35,7 +35,7 @@ services:
       - dbdata:/var/lib/mysql
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=somewordpress
+      - MYSQL_ROOT_PASSWORD=test
       - MYSQL_DATABASE=wordpress
       - MYSQL_USER=wordpress
       - MYSQL_PASSWORD=wordpress

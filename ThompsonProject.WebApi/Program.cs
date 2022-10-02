@@ -33,10 +33,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCustomHealthChecks();
 
-builder.Services.AddDbContext<ThompsonContext>(_ =>
-    new DbContextOptionsBuilder()
-        .UseMySql(config.GetConnectionString("Thompson"),
-            ServerVersion.AutoDetect(config.GetConnectionString("Thompson"))));
+builder.Services.AddDbContext<ThompsonContext>(_ => new ThompsonContext(config));
 
 builder.Services.AddTransient<IVolunteerService, VolunteerService>();
 
@@ -55,6 +52,19 @@ try
     app.UseEventMappings();
 
     app.UseHealthChecks("/hc");
+
+    using (var scope = app.Services.CreateScope())
+    using (var ctx = scope.ServiceProvider.GetRequiredService<ThompsonContext>())
+    {
+        try
+        {
+            ctx.Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to migrate database!");
+        }
+    }
 
     Log.Information("Application started!");
     app.Run();
