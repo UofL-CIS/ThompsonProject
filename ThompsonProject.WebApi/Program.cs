@@ -40,18 +40,32 @@ builder.Services.AddDbContext<ThompsonContext>(_ =>
 
 builder.Services.AddTransient<IVolunteerService, VolunteerService>();
 
-
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
+try
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    Log.Information("Application starting...");
+    var app = builder.Build();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseVolunteerMappings();
+    app.UseEventMappings();
+
+    app.UseHealthChecks("/hc");
+
+    Log.Information("Application started!");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application failed to start!");
+    throw;
+}
+finally
+{
+    Log.CloseAndFlush();
 }
 
-app.UseVolunteerMappings();
-app.UseEventMappings();
-
-app.UseHealthChecks("/hc");
-
-app.Run();
