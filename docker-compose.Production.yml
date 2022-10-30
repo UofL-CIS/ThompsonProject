@@ -1,17 +1,30 @@
 version: '3.4'
 
 services:
-  webapi:
-    image: thompsonprojectcr.azurecr.io/thompsonprojectwebapi:latest
+  #webapi: # Disabled unless required
+  #  image: thompsonprojectcr.azurecr.io/thompsonprojectwebapi:latest
+  #  restart: always
+  #  environment:
+  #    - AppSettings__LoggingUri
+  #    - AppSettings__LoggingKey
+  #    - ConnectionStrings__Thompson
+  #  depends_on:
+  #    - proxy
+  #  ports:
+  #    - '8081:80'
+  metricslogger:
+    image: ubuntu:latest
     restart: always
-    environment:
-      - AppSettings__LoggingUri
-      - AppSettings__LoggingKey
-      - ConnectionStrings__Thompson
-    depends_on:
-      - proxy
-    ports:
-      - '8081:80'
+    command: >
+      bash -c "apt update && apt install dotnet6 curl -y && dotnet tool install --global seqcli;
+      while [[ 1 ]]; do
+      echo \"Starting tail ingest...\";
+      tail -n 0 -f /data/proxydata/logs/*.log | sed 's/==>.*//' | ./root/.dotnet/tools/seqcli ingest -s http://metrics -a ${AppSettings__LoggingKey} --invalid-data=ignore;
+      echo \"Tail ingest closed...\";
+      sleep 10;
+      done;"
+    volumes:
+      - proxydata:/data/proxydata:ro
 
   metrics:
     image: datalust/seq:latest
@@ -75,6 +88,7 @@ services:
     volumes:
       - proxydata:/data
       - proxyssl:/etc/letsencrypt
+
 
 volumes:
   proxydata:
