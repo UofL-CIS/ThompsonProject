@@ -1,17 +1,32 @@
 version: '3.4'
 
 services:
-  webapi:
-    image: thompsonprojectcr.azurecr.io/thompsonprojectwebapi:latest
+  #webapi: # Disabled unless required
+  #  image: thompsonprojectcr.azurecr.io/thompsonprojectwebapi:latest
+  #  restart: always
+  #  environment:
+  #    - AppSettings__LoggingUri
+  #    - AppSettings__LoggingKey
+  #    - ConnectionStrings__Thompson
+  #  depends_on:
+  #    - proxy
+  #  ports:
+  #    - '8081:80'
+  metricslogger: # TODO - Create image
+    image: ubuntu:latest
     restart: always
-    environment:
-      - AppSettings__LoggingUri
-      - AppSettings__LoggingKey
-      - ConnectionStrings__Thompson
-    depends_on:
-      - proxy
-    ports:
-      - '8081:80'
+    command: >
+      bash -c "apt update && apt install dotnet6 curl ripgrep -y && dotnet tool install --global seqcli;
+      $(while [ 1 ]; do o=`ps -aux | rg '0:00 tail.{10}'`>&1 && echo Tail running || echo Tail NOT running; sleep 30; done;) &
+      echo \"Starting tail ingest...\";
+      tail -n 0 -f /data/proxydata/logs/*.log | sed 's/==>.*//' | ./root/.dotnet/tools/seqcli ingest -s http://metrics -a ${AppSettings__LoggingKey} --invalid-data=ignore -x \"${SEQ_NGINX_EXT_PATTERN}\";
+      echo \"Tail ingest exited!\";"
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/bin/ps -aux | /usr/bin/rg '0+:0+ +tail.{10}'"]
+      retries: 3
+      start_period: 3m
+    volumes:
+      - proxydata:/data/proxydata:ro
 
   metrics:
     image: datalust/seq:latest
@@ -75,6 +90,7 @@ services:
     volumes:
       - proxydata:/data
       - proxyssl:/etc/letsencrypt
+
 
 volumes:
   proxydata:
