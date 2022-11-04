@@ -12,18 +12,11 @@ services:
   #    - proxy
   #  ports:
   #    - '8081:80'
-  metricslogger: # TODO - Create image
-    image: ubuntu:latest
+  metricslogger:
+    image: nickmartin1ee7/nginx-seq-ingestionservice
     restart: always
-    command: >
-      bash -c "apt update && apt install dotnet6 curl ripgrep -y && dotnet tool install --global seqcli;
-      $(while [ 1 ]; do pkill -9 tail && echo Killed tail; sleep 1m; done;) &
-      $(while [ 1 ]; do ps -aux | rg ' +0:00 tail' && echo HC healthy || echo HC unhealthy; sleep 57; done;) &
-      echo \"Starting tail ingest...\";
-      while [ 1 ]; do
-        tail -n 0 -f /data/proxydata/logs/*.log | sed 's/==>.*//' | ./root/.dotnet/tools/seqcli ingest -s http://metrics -a ${AppSettings__LoggingKey} --invalid-data=ignore -x \"${SEQ_NGINX_EXT_PATTERN}\";
-        echo \"Tail ingest restarted!\";
-      done;"
+    environment:
+      - API_KEY
     healthcheck:
       test: ["CMD-SHELL", "/usr/bin/ps -aux | /usr/bin/rg ' +0:00 tail'"]
       retries: 3
