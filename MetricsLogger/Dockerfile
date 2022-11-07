@@ -1,13 +1,11 @@
-FROM ubuntu:latest
+FROM mcr.microsoft.com/dotnet/sdk:6.0
 
-RUN apt update
-RUN apt install dotnet6 curl ripgrep -y
 RUN dotnet tool install --global seqcli
 
 ARG API_KEY_ARG
 
 ENV API_KEY=$API_KEY_ARG
 
-COPY . .
+COPY ingest.sh .
 
 CMD ./ingest.sh $API_KEY
