@@ -1,0 +1,1 @@
+docker buildx build --platform linux/arm64,linux/amd64 -f .\Dockerfile --force-rm -t nickmartin1ee7/nginx-seq-ingestionservice:latest --push .
