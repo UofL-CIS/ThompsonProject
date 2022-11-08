@@ -1,17 +1,6 @@
 version: '3.4'
 
 services:
-  #webapi: # Disabled unless required
-  #  image: thompsonprojectcr.azurecr.io/thompsonprojectwebapi:latest
-  #  restart: always
-  #  environment:
-  #    - AppSettings__LoggingUri
-  #    - AppSettings__LoggingKey
-  #    - ConnectionStrings__Thompson
-  #  depends_on:
-  #    - proxy
-  #  ports:
-  #    - '8081:80'
   metricslogger:
     image: nickmartin1ee7/nginx-seq-ingestionservice
     restart: always
