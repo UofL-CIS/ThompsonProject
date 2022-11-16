@@ -23,7 +23,7 @@ services:
     depends_on:
       - proxy
     ports:
-      - '8082:80'
+      - '10084:80'
 
   db:
     image: mariadb:latest
@@ -47,7 +47,7 @@ services:
       - db
       - proxy
     ports:
-      - '8083:8080'
+      - '10083:8080'
 
   wordpress:
     image: wordpress:latest
@@ -63,15 +63,21 @@ services:
       - db
       - proxy
     ports:
-      - '8080:80'
+      - '10082:80'
 
   proxy:
     image: jc21/nginx-proxy-manager:latest
     restart: unless-stopped
     ports:
-      - '80:80'
-      - '81:81'
-      - '443:443'
+      - '10081:81'
+      - target: 80
+        published: 10080
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 10443
+        protocol: tcp
+        mode: host
     volumes:
       - proxydata:/data
       - proxyssl:/etc/letsencrypt
